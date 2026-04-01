@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import Dict, Any
 
 @dataclass
 class DataIngestionConfig:
@@ -23,7 +23,7 @@ class ModelTrainerConfig:
     
 @dataclass
 class DataValidationConfig:
-    schema: dict
+    schema: Dict[str, Any]
     raw_data_path: str
     validated_data_path: str
     report_file_path: str
