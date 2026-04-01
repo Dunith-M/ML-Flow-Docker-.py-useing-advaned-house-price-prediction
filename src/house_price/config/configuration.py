@@ -20,7 +20,7 @@ class ConfigurationManager:
         self.model_config = read_yaml(Path(model_config_path))
         self.paths_config = read_yaml(Path(paths_config_path))
 
-        # ✅ Better: get schema path from config (not hardcoded)
+        # Better: get schema path from config (not hardcoded)
         self.schema_path = Path(self.paths_config["data_validation"]["schema_path"])
         self.schema = read_yaml(self.schema_path)
 
