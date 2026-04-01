@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+pyyaml
+joblib
+mlflow
+streamlit
+pytest
+python-box
+ensure
+pyyaml

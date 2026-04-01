@@ -1,0 +1,3 @@
+artifacts:
+  model_dir: artifacts/models
+  report_dir: artifacts/reports

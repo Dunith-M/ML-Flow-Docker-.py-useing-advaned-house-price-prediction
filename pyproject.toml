@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "house-price-ml"
+version = "0.1.0"
+description = "End-to-end house price prediction ML project with MLflow and Streamlit"
+authors = [
+  { name = "Dunith" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
