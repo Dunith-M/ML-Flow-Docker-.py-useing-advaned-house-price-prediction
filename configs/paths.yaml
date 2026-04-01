@@ -1,3 +1,8 @@
 artifacts:
   model_dir: artifacts/models
   report_dir: artifacts/reports
+
+data_validation:
+  schema_path: configs/schema.yaml
+  validated_data_path: data/interim/validated_data.csv
+  report_file_path: artifacts/reports/validation_report.json

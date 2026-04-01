@@ -5,6 +5,7 @@ from ..entity.config_entity import (
     DataIngestionConfig,
     DataTransformationConfig,
     ModelTrainerConfig,
+    DataValidationConfig,
 )
 
 
@@ -18,6 +19,10 @@ class ConfigurationManager:
         self.config = read_yaml(Path(config_path))
         self.model_config = read_yaml(Path(model_config_path))
         self.paths_config = read_yaml(Path(paths_config_path))
+
+        # ✅ Better: get schema path from config (not hardcoded)
+        self.schema_path = Path(self.paths_config["data_validation"]["schema_path"])
+        self.schema = read_yaml(self.schema_path)
 
     def get_data_ingestion_config(self) -> DataIngestionConfig:
         return DataIngestionConfig(
@@ -37,4 +42,12 @@ class ConfigurationManager:
             n_estimators=self.model_config["model_trainer"]["n_estimators"],
             max_depth=self.model_config["model_trainer"]["max_depth"],
             random_state=self.model_config["model_trainer"]["random_state"],
+        )
+
+    def get_data_validation_config(self) -> DataValidationConfig:
+        return DataValidationConfig(
+            schema=self.schema,
+            raw_data_path=self.config["data_ingestion"]["raw_data_path"],
+            validated_data_path=self.paths_config["data_validation"]["validated_data_path"],
+            report_file_path=self.paths_config["data_validation"]["report_file_path"],
         )

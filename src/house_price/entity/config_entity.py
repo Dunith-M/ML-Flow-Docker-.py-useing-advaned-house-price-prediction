@@ -19,3 +19,11 @@ class ModelTrainerConfig:
     n_estimators: int
     max_depth: int
     random_state: int
+    
+    
+@dataclass
+class DataValidationConfig:
+    schema: dict
+    raw_data_path: str
+    validated_data_path: str
+    report_file_path: str
