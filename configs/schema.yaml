@@ -1,0 +1,109 @@
+columns:
+  - name: price
+    dtype: float
+
+  - name: area
+    dtype: int
+
+  - name: bedrooms
+    dtype: int
+
+  - name: bathrooms
+    dtype: int
+
+  - name: stories
+    dtype: int
+
+  - name: mainroad
+    dtype: category
+
+  - name: guestroom
+    dtype: category
+
+  - name: basement
+    dtype: category
+
+  - name: hotwaterheating
+    dtype: category
+
+  - name: airconditioning
+    dtype: category
+
+  - name: parking
+    dtype: int
+
+  - name: prefarea
+    dtype: category
+
+  - name: furnishingstatus
+    dtype: category
+
+
+# Required columns 
+required_columns:
+  - price
+  - area
+  - bedrooms
+  - bathrooms
+  - stories
+  - mainroad
+  - guestroom
+  - basement
+  - hotwaterheating
+  - airconditioning
+  - parking
+  - prefarea
+  - furnishingstatus
+
+
+# Null thresholds (max % allowed missing)
+null_thresholds:
+  price: 0.0
+  area: 0.0
+  bedrooms: 0.05
+  bathrooms: 0.05
+  stories: 0.05
+  parking: 0.1
+  mainroad: 0.1
+  guestroom: 0.1
+  basement: 0.1
+  hotwaterheating: 0.1
+  airconditioning: 0.1
+  prefarea: 0.1
+  furnishingstatus: 0.1
+
+
+# Primary key 
+primary_key:
+  - area
+  - bedrooms
+  - bathrooms
+  - stories
+  - price
+
+
+# Value constraints 
+constraints:
+  price:
+    min: 10000
+    max: 100000000
+
+  area:
+    min: 200
+    max: 20000
+
+  bedrooms:
+    min: 1
+    max: 10
+
+  bathrooms:
+    min: 1
+    max: 10
+
+  stories:
+    min: 1
+    max: 5
+
+  parking:
+    min: 0
+    max: 5
