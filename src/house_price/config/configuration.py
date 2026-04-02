@@ -6,6 +6,7 @@ from ..entity.config_entity import (
     DataTransformationConfig,
     ModelTrainerConfig,
     DataValidationConfig,
+    DataTransformationConfig,
 )
 
 
@@ -51,3 +52,11 @@ class ConfigurationManager:
             validated_data_path=self.paths_config["data_validation"]["validated_data_path"],
             report_file_path=self.paths_config["data_validation"]["report_file_path"],
         )
+        
+    def get_data_transformation_config(self) -> DataTransformationConfig:
+        return DataTransformationConfig(
+            raw_data_path=self.config["data_ingestion"]["raw_data_path"],
+            target_column=self.config["data_transformation"]["target_column"],
+            test_size=self.config["data_transformation"]["test_size"],
+            random_state=self.config["data_transformation"]["random_state"],
+    )

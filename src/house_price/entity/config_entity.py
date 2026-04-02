@@ -27,3 +27,11 @@ class DataValidationConfig:
     raw_data_path: str
     validated_data_path: str
     report_file_path: str
+    
+
+@dataclass
+class DataTransformationConfig:
+    raw_data_path: str
+    target_column: str
+    test_size: float
+    random_state: int
