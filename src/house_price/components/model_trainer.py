@@ -1,6 +1,9 @@
 import os
+from pathlib import Path
 
 import joblib
+import mlflow
+import mlflow.sklearn
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
@@ -13,25 +16,8 @@ from .data_transformation import DataTransformation
 class ModelTrainer:
     def __init__(self, config):
         self.config = config
-        self.model = self._get_model()
         self.best_model = None
         self.best_score = float("inf")
-
-    def _get_model(self):
-        if self.config.model_name == "random_forest":
-            return RandomForestRegressor(
-                n_estimators=self.config.n_estimators,
-                max_depth=self.config.max_depth,
-                random_state=self.config.random_state,
-            )
-
-        return LinearRegression()
-
-    def train(self, X_train, y_train):
-        self.model.fit(X_train, y_train)
-
-    def predict(self, X_test):
-        return self.model.predict(X_test)
 
     def evaluate(self, y_test, y_pred):
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
@@ -44,42 +30,104 @@ class ModelTrainer:
             "R2": r2,
         }
 
-    def select_best_model(self, metrics):
-        if metrics["RMSE"] < self.best_score:
-            self.best_score = metrics["RMSE"]
-            self.best_model = self.model
-
-    def save_model(self, output_path: str = "artifacts/models/model.pkl"):
+    def save_model(self, model, output_path: str = "artifacts/models/model.pkl"):
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-        if self.best_model is None:
-            raise ValueError("No model selected to save.")
-
-        joblib.dump(self.best_model, output_path)
+        joblib.dump(model, output_path)
         return output_path
 
 
 def main() -> None:
+    # Setup tracking
+    tracking_dir = Path("mlruns").resolve()
+    tracking_dir.mkdir(parents=True, exist_ok=True)
+
+    mlflow.set_tracking_uri(tracking_dir.as_uri())
+    mlflow.set_experiment("house_price_experiment")
+
+    # Load configs
     config = ConfigurationManager()
     transformation_config = config.get_data_transformation_config()
     trainer_config = config.get_model_trainer_config()
 
+    # Data
     transformer = DataTransformation(transformation_config)
     transformed_data = transformer.initiate_data_transformation()
 
+    X_train = transformed_data["X_train"]
+    y_train = transformed_data["y_train"]
+    X_test = transformed_data["X_test"]
+    y_test = transformed_data["y_test"]
+
     trainer = ModelTrainer(trainer_config)
-    trainer.train(transformed_data["X_train"], transformed_data["y_train"])
-    predictions = trainer.predict(transformed_data["X_test"])
 
-    metrics = trainer.evaluate(transformed_data["y_test"], predictions)
-    trainer.select_best_model(metrics)
-    model_path = trainer.save_model()
+    # MULTI-MODEL SETUP
+    models = {
+        "linear_regression": LinearRegression(),
+        "random_forest": RandomForestRegressor(
+            n_estimators=trainer_config.n_estimators,
+            max_depth=trainer_config.max_depth,
+            random_state=trainer_config.random_state,
+        ),
+    }
 
-    print("Model training completed successfully.")
-    print(f"Model saved to: {model_path}")
-    print(f"RMSE: {metrics['RMSE']:.4f}")
-    print(f"MAE: {metrics['MAE']:.4f}")
-    print(f"R2: {metrics['R2']:.4f}")
+    best_model = None
+    best_rmse = float("inf")
+
+    # LOOP OVER MODELS
+    for model_name, model in models.items():
+
+        with mlflow.start_run(run_name=model_name):
+
+            # Log params
+            mlflow.log_param("model_name", model_name)
+
+            if model_name == "random_forest":
+                mlflow.log_param("n_estimators", trainer_config.n_estimators)
+                mlflow.log_param("max_depth", trainer_config.max_depth)
+                mlflow.log_param("random_state", trainer_config.random_state)
+
+            # Train
+            model.fit(X_train, y_train)
+
+            # Predict
+            predictions = model.predict(X_test)
+
+            # Evaluate
+            metrics = trainer.evaluate(y_test, predictions)
+
+            # Log metrics
+            mlflow.log_metric("RMSE", metrics["RMSE"])
+            mlflow.log_metric("MAE", metrics["MAE"])
+            mlflow.log_metric("R2", metrics["R2"])
+
+            # Log model
+            try:
+                mlflow.sklearn.log_model(
+                    sk_model=model,
+                    artifact_path="model",
+                )
+            except Exception as exc:
+                print(f"MLflow model logging skipped: {exc}")
+
+            # SELECT BEST MODEL
+            if metrics["RMSE"] < best_rmse:
+                best_rmse = metrics["RMSE"]
+                best_model = model
+
+            print(f"\nModel: {model_name}")
+            print(f"RMSE: {metrics['RMSE']:.4f}")
+            print(f"MAE: {metrics['MAE']:.4f}")
+            print(f"R2: {metrics['R2']:.4f}")
+
+    # SAVE BEST MODEL ONLY
+    if best_model is None:
+        raise ValueError("No best model found.")
+
+    final_model_path = trainer.save_model(best_model)
+
+    print("\nBest model saved.")
+    print(f"Path: {final_model_path}")
+    print(f"Best RMSE: {best_rmse:.4f}")
 
 
 if __name__ == "__main__":
