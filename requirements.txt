@@ -11,3 +11,4 @@ pytest
 python-box
 ensure
 pyyaml
+mlflow
