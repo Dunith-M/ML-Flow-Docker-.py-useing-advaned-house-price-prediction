@@ -1,8 +1,7 @@
-from house_price.config.configuration import ConfigurationManager
-from house_price.components.data_transformation import DataTransformation
-from house_price.utils.common import setup_logger
-
 import logging
+from ..components.data_transformation import DataTransformation
+from ..config.configuration import ConfigurationManager
+from ..utils.common import setup_logger
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +24,10 @@ class Stage02DataTransformationPipeline:
             # Run transformation step
             data = transformer.initiate_data_transformation()
 
-            # Debug outputs (you can remove later)
-            logger.info(f"Numerical Features: {data['num_features']}")
-            logger.info(f"Categorical Features: {data['cat_features']}")
+            logger.info(
+                "Preprocessor saved to: %s",
+                data["preprocessor_path"],
+            )
 
             logger.info("Stage 02: Data Transformation completed successfully")
 
@@ -45,9 +45,8 @@ if __name__ == "__main__":
         pipeline = Stage02DataTransformationPipeline()
         data = pipeline.run()
 
-        # Optional print (for development only)
-        print("Numerical Features:", data["num_features"])
-        print("Categorical Features:", data["cat_features"])
+        print("Data transformation completed successfully.")
+        print("Preprocessor saved to:", data["preprocessor_path"])
 
     except Exception as e:
         print(f"Pipeline failed: {e}")

@@ -7,13 +7,6 @@ class DataIngestionConfig:
 
 
 @dataclass
-class DataTransformationConfig:
-    test_size: float
-    random_state: int
-    target_column: str
-
-
-@dataclass
 class ModelTrainerConfig:
     model_name: str
     n_estimators: int
@@ -35,3 +28,4 @@ class DataTransformationConfig:
     target_column: str
     test_size: float
     random_state: int
+    preprocessor_path: str
