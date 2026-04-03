@@ -241,4 +241,11 @@ make format      # format code
 
 ## 🏃‍➡️ How to Run
 
+* pip install -r requirements.txt
+* python main.py
+Run app
+* streamlit run app/streamlit_app.py
+
+Build Image and Run Container
+* docker build -t house-price-app .
 * docker run -p 8501:8501 house-price-app
