@@ -1,14 +1,36 @@
-from .config.configuration import ConfigurationManager
+from src.house_price.pipeline.training_pipeline import TrainingPipeline
+from src.house_price.pipeline.prediction_pipeline import PredictionPipeline
 
 
 def main() -> None:
-    config = ConfigurationManager()
+    try:
+        print("===== TRAINING PIPELINE STARTED =====")
+        training_pipeline = TrainingPipeline()
+        artifacts = training_pipeline.run()
 
-    data_config = config.get_data_ingestion_config()
-    model_config = config.get_model_trainer_config()
+        print("===== TRAINING COMPLETED =====")
 
-    print(data_config)
-    print(model_config)
+        print("===== PREDICTION PIPELINE STARTED =====")
+
+        prediction_pipeline = PredictionPipeline(
+            model_path=artifacts["model_path"],
+            preprocessor_path=artifacts["preprocessor_path"],
+        )
+
+        #  Replace with real schema-aligned input
+        sample_input = {
+            "area": 1500,
+            "bedrooms": 3,
+            "bathrooms": 2,
+        }
+
+        prediction = prediction_pipeline.predict(sample_input)
+
+        print(f"Prediction: {prediction}")
+
+    except Exception as e:
+        print(f"Pipeline failed: {e}")
+        raise e
 
 
 if __name__ == "__main__":
