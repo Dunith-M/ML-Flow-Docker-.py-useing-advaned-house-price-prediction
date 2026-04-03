@@ -74,7 +74,8 @@ house-price-ml/
 │       └── utils/
 │
 ├── mlruns/                 # MLflow tracking
-├── Dockerfile
+├── Dockerfile              # Make Container
+├── .dockerignore
 ├── Makefile
 ├── requirements.txt
 ├── main.py
